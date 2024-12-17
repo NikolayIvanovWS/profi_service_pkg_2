@@ -1,33 +1,36 @@
 #!/usr/bin/env python3
 import rospy
 import os
-import time
 from datetime import datetime
+import time
 from sensor_msgs.msg import BatteryState, LaserScan
 
-configuration_number = "9xL73628"  
+configuration_number = "8xT41234"
 
-battery_received = False
-laser_received = False
+start_time = time.time()
+
+battery_data_received = False
+laser_data_received = False
 
 def battery_callback(msg):
-    global battery_received, battery_sub
-    if not battery_received:
-        rospy.loginfo(f"Battery voltage: {msg.voltage:.2f} V")
-        battery_received = True
-        battery_sub.unregister()
+    global battery_data_received
+    if not battery_data_received:
+        rospy.loginfo(f"Battery voltage: {msg.voltage} V")
+        battery_data_received = True
 
 def laser_callback(msg):
-    global laser_received, laser_sub
-    if not laser_received:
-        rospy.loginfo(f"Laser scan data received. Range at index 100: {msg.ranges[100]} meters")
-        laser_received = True
-        laser_sub.unregister()
+    global laser_data_received
+    if not laser_data_received:
+        if 100 < len(msg.ranges): 
+            range_at_100 = msg.ranges[100]
+            rospy.loginfo(f"Laser scan data received. Range at index 100: {range_at_100:.2f} meters")
+        else:
+            rospy.logwarn("Laser scan data is too short, index 100 is not available.")
+        laser_data_received = True
 
 def main():
-    global battery_sub, laser_sub
-
     rospy.init_node('service_configuration', anonymous=True)
+
     rospy.loginfo("Service package 2: Starting configuration...")
     rospy.sleep(1)
 
@@ -41,17 +44,18 @@ def main():
         rospy.loginfo("Current Time: " + current_time)
         time.sleep(1)
 
-    battery_sub = rospy.Subscriber('/bat', BatteryState, battery_callback)
-    laser_sub = rospy.Subscriber('/scan', LaserScan, laser_callback)
+    rospy.Subscriber('/bat', BatteryState, battery_callback)
+    rospy.Subscriber('/scan', LaserScan, laser_callback)
 
-    # Wait for all data to be received
-    while not (battery_received and laser_received):
+    while not rospy.is_shutdown() and not (battery_data_received and laser_data_received):
         rospy.sleep(0.1)
 
-    rospy.loginfo("Service package 2: Configuration checksum : {}".format(configuration_number))
+    rospy.loginfo(f"Service package 2: Configuration checksum : {configuration_number}")
+
+    total_time = time.time() - start_time
+    rospy.loginfo(f"Service package 2: Total execution time: {total_time:.2f} seconds")
 
     rospy.signal_shutdown("Script completed successfully")
-    rospy.spin()
 
 if __name__ == '__main__':
     main()

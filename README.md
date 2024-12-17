@@ -1,66 +1,50 @@
 
-# profi_service_pkg_2
+# Profi Service Package 2
 
-## Описание
-`profi_service_pkg_2` — это ROS-пакет, разработанный для демонстрации системной информации, работы с данными батареи и лазерного сканера. Пакет не выполняет функциональных задач, а служит примером ROS-разработки. 
+## Overview
+This package is designed to log various system and robot information during the execution of the configuration process. It provides details on the robot's battery status, lidar range, system information, and current time. The package also logs the configuration checksum for consistency.
 
-Версия: **1.6.1**
+## Features
 
-## Текущие возможности:
-1. Вывод системной информации о платформе (используется команда `uname -a`).
-2. Демонстрация текущей даты и времени (отображается каждые 1 секунду в течение 5 секунд).
-3. Подписка на топик `/bat` (сообщения типа `sensor_msgs/BatteryState`):
-   - Отображение текущего напряжения батареи (в Вольтах).
-4. Подписка на топик `/scan` (сообщения типа `sensor_msgs/LaserScan`):
-   - Отображение диапазона сканирования по индексу 100 (в метрах).
-5. Завершение работы после получения данных из обоих топиков.
-6. Вывод итоговой строки с контрольной суммой конфигурации.
+1. **Battery Charge Reporting**:
+   - The battery charge is reported in percentage, based on the voltage measurement. 
+   - 16.4 V corresponds to 100% battery charge.
+   - If the voltage is below 4 V, the package will output a message indicating that the robot is powered by a power supply.
 
-Пример итогового сообщения:
+2. **Laser Data**:
+   - The package logs the distance value from the lidar sensor at index 0 of the laser scan data.
+
+3. **System Info**:
+   - The system's general information is logged using the `uname -a` command.
+
+4. **Time Reporting**:
+   - The current date and time is logged for 5 seconds during the execution of the package.
+
+5. **Configuration Checksum**:
+   - A unique checksum for the configuration is logged as part of the final output. This checksum is defined by the `configuration_number`.
+
+## Execution
+
+To run the package, use the following `roslaunch` command:
+
+```bash
+roslaunch profi_service_pkg_2 start_configure_2.launch
 ```
-Service package 2: Configuration checksum : 9xL73628
-```
 
-## Как запустить
-1. Перейдите в рабочую директорию вашего ROS-проекта:
-   ```bash
-   cd ~/catkin_ws
-   ```
-2. Скомпилируйте пакет:
-   ```bash
-   catkin_make
-   ```
-3. Запустите файл конфигурации:
-   ```bash
-   roslaunch profi_service_pkg_2 start_configure_2.launch
-   ```
+The package will log the following information:
 
-## Зависимости
-- ROS Noetic
-- Топики:
-  - `/bat` (`sensor_msgs/BatteryState`)
-  - `/scan` (`sensor_msgs/LaserScan`)
+- System information
+- Current date and time for 5 seconds
+- Battery status (as percentage)
+- Laser scan data at index 0
+- Configuration checksum
 
-## История версий
-### v1.6.1
-- Актуализировано описание в README.md.
+## Dependencies
 
-### v1.6.0
-- Добавлена обработка данных из топиков `/bat` (напряжение батареи) и `/scan` (диапазон сканирования).
+This package relies on the following ROS messages:
 
-### v1.5.6
-- Реализована подписка на новые топики.
-- Начало обработки данных из `/bat` и `/scan`.
+- `sensor_msgs/BatteryState`
+- `sensor_msgs/LaserScan`
 
-### v1.2.4
-- Добавлен файл `README.md`.
-- Скрипт завершается после вывода контрольной строки конфигурации.
+Ensure that the robot is properly publishing battery and laser scan data.
 
-### v1.1.0
-- Добавлена демонстрация текущей даты и времени.
-
-### v1.0.0
-- Вывод системной информации с использованием команды `uname -a`.
-
-### v0.0.1
-- Инициализация пакета.

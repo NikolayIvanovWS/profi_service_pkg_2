@@ -5,8 +5,7 @@ from datetime import datetime
 import time
 from sensor_msgs.msg import BatteryState, LaserScan
 
-configuration_number = "8xT41234"
-
+configuration_number = "0xT54237"
 start_time = time.time()
 
 battery_data_received = False
@@ -15,22 +14,29 @@ laser_data_received = False
 def battery_callback(msg):
     global battery_data_received
     if not battery_data_received:
-        rospy.loginfo(f"Battery voltage: {msg.voltage} V")
+        voltage = msg.voltage
+        if voltage >= 16.4:
+            battery_percent = 100
+        elif voltage < 4:
+            rospy.loginfo("No battery, powered by a power supply")
+            battery_percent = 0
+        else:
+            battery_percent = (voltage / 16.4) * 100
+        rospy.loginfo(f"Battery charge: {battery_percent:.2f}%")
         battery_data_received = True
 
 def laser_callback(msg):
     global laser_data_received
     if not laser_data_received:
-        if 100 < len(msg.ranges): 
-            range_at_100 = msg.ranges[100]
-            rospy.loginfo(f"Laser scan data received. Range at index 100: {range_at_100:.2f} meters")
+        if 0 < len(msg.ranges):
+            range_at_0 = msg.ranges[0]
+            rospy.loginfo(f"Laser scan data received. Range at index 0: {range_at_0:.2f} meters")
         else:
-            rospy.logwarn("Laser scan data is too short, index 100 is not available.")
+            rospy.logwarn("Laser scan data is too short, index 0 is not available.")
         laser_data_received = True
 
 def main():
     rospy.init_node('service_configuration', anonymous=True)
-
     rospy.loginfo("Service package 2: Starting configuration...")
     rospy.sleep(1)
 

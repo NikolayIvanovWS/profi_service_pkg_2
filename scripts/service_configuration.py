@@ -3,9 +3,13 @@ import rospy
 import os
 from datetime import datetime
 import time
-import sys
+from sensor_msgs.msg import BatteryState
 
-configuration_number = "4xT98766"  
+configuration_number = "0xP98767"  
+
+def battery_callback(msg):
+
+    rospy.loginfo(f"Battery voltage: {msg.voltage} V")
 
 def main():
     rospy.init_node('service_configuration', anonymous=True)
@@ -18,14 +22,19 @@ def main():
     rospy.sleep(1)
 
     rospy.loginfo("Displaying current date and time for 5 seconds:")
-    for _ in range(5):
+    for _ in range(5):  
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         rospy.loginfo("Current Time: " + current_time)
         time.sleep(1)
 
+    rospy.Subscriber('/bat', BatteryState, battery_callback)
+    time.sleep(0.055)
+
     rospy.loginfo("Service package 2: Configuration checksum : {}".format(configuration_number))
     
     rospy.signal_shutdown("Script completed successfully")
+
+    rospy.spin()
 
 if __name__ == '__main__':
     main()

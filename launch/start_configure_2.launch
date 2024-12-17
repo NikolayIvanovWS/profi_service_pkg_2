@@ -1,0 +1,3 @@
+<launch>
+    <node pkg="profi_service_pkg_2" type="service_configuration.py" name="service_config" output="screen"/>
+</launch>
